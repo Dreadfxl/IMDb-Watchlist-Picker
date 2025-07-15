@@ -7,6 +7,7 @@
     body { font-family: sans-serif; margin: 2em; }
     #poster { max-width: 300px; margin-top: 2em; }
     .upload-section { margin: 2em 0; }
+    #tryAnother { margin-top: 1em; }
   </style>
 </head>
 <body>
@@ -16,93 +17,71 @@
     <input type="file" id="csvUpload" accept=".csv" />
   </div>
   <div id="result"></div>
-  <img id="poster" style="display:none" />
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script>
-let globalImdbIds = [];
+  <img id="poster" style="display:none" alt="RPDB Poster" />
+  <button id="tryAnother" style="display:none">Try Another</button>
 
-function tryRandomPoster(attempts = 10) {
-  if (!globalImdbIds.length) {
-    document.getElementById('result').innerText = 'No movies found in CSV.';
-    document.getElementById('poster').style.display = 'none';
-    document.getElementById('tryAnother').style.display = 'none';
-    return;
-  }
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script>
+    let globalImdbIds = [];
 
-  const tried = new Set();
-  function pickAndTry(nth) {
-    if (tried.size >= Math.min(attempts, globalImdbIds.length)) {
-      document.getElementById('result').innerText = 'No posters found for any titles in your list on the free tier.';
-      document.getElementById('poster').style.display = 'none';
-      document.getElementById('tryAnother').style.display = 'block';
-      return;
-    }
-    let idx;
-    do { idx = Math.floor(Math.random() * globalImdbIds.length); } while (tried.has(idx) && tried.size < globalImdbIds.length);
-    tried.add(idx);
-    const randomId = globalImdbIds[idx];
-    document.getElementById('result').innerText = `Trying: ${randomId}`;
-    fetch(`https://api.ratingposterdb.com/${randomId}/poster-default?apikey=t0-free-rpdb`)
-      .then(resp => {
-        if (resp.status === 403) throw new Error('403');
-        return resp.json();
-      })
-      .then(data => {
-        const posterUrl = data.poster_url || data.url || '';
-        if (posterUrl) {
+    function tryRandomPoster(attempts = 10) {
+      if (!globalImdbIds.length) {
+        document.getElementById('result').innerText = 'No movies found in CSV.';
+        document.getElementById('poster').style.display = 'none';
+        document.getElementById('tryAnother').style.display = 'none';
+        return;
+      }
+      const tried = new Set();
+      function pickAndTry(nth) {
+        if (tried.size >= Math.min(attempts, globalImdbIds.length)) {
+          document.getElementById('result').innerText = 'No posters found for any titles in your list on the free tier.';
+          document.getElementById('poster').style.display = 'none';
+          document.getElementById('tryAnother').style.display = 'block';
+          return;
+        }
+        let idx;
+        do {
+          idx = Math.floor(Math.random() * globalImdbIds.length);
+        } while (tried.has(idx) && tried.size < globalImdbIds.length);
+        tried.add(idx);
+
+        const randomId = globalImdbIds[idx];
+        document.getElementById('result').innerText = `Trying: ${randomId}`;
+        const posterUrl = `https://img.ratingposterdb.com/${randomId}.jpg?apiKey=t0-free-rpdb`;
+
+        const posterImg = document.getElementById('poster');
+        posterImg.onerror = function() {
+          posterImg.style.display = 'none';
+          pickAndTry(nth + 1);
+        };
+        posterImg.onload = function() {
           document.getElementById('result').innerText = `Random IMDb ID: ${randomId}`;
-          const posterImg = document.getElementById('poster');
-          posterImg.src = posterUrl;
           posterImg.style.display = 'block';
           document.getElementById('tryAnother').style.display = 'block';
-        } else {
-          document.getElementById('poster').style.display = 'none';
-          pickAndTry(nth+1);
-        }
-      })
-      .catch(err => {
-        document.getElementById('poster').style.display = 'none';
-        if (err.message === '403') {
-          pickAndTry(nth+1);
-        } else {
-          document.getElementById('result').innerText = `Poster lookup failed: ${err.message || err}`;
-          document.getElementById('tryAnother').style.display = 'block';
+        };
+        posterImg.src = posterUrl;
+      }
+      pickAndTry(0);
+    }
+
+    document.getElementById('csvUpload').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          // Find the Const column and filter for valid IMDb IDs
+          globalImdbIds = results.data
+            .map(row => row['Const'] && row['Const'].trim())
+            .filter(id => id && /^tt\d+$/.test(id));
+          document.getElementById('tryAnother').style.display = globalImdbIds.length ? 'block' : 'none';
+          tryRandomPoster();
         }
       });
-  }
-  pickAndTry(0);
-}
+    });
 
-document.getElementById('csvUpload').addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: function(results) {
-      // Find the Const column and filter for valid IMDb IDs
-      globalImdbIds = results.data
-        .map(row => row['Const'] && row['Const'].trim())
-        .filter(id => id && /^tt\d+$/.test(id));
-
-      document.getElementById('tryAnother').style.display = globalImdbIds.length ? 'block' : 'none';
-
-      tryRandomPoster();
-    }
-  });
-});
-
-// Try another random pick button
-if (!document.getElementById('tryAnother')) {
-  const btn = document.createElement('button');
-  btn.id = 'tryAnother';
-  btn.textContent = 'Try Another';
-  btn.style.display = 'none';
-  btn.style.marginTop = '1em';
-  btn.onclick = () => tryRandomPoster();
-  document.body.appendChild(btn);
-}
-</script>
+    document.getElementById('tryAnother').onclick = () => tryRandomPoster();
+  </script>
 </body>
 </html>
