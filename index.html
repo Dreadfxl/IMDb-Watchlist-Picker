@@ -1,122 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>IMDb Watchlist Picker</title>
   <style>
     body { font-family: sans-serif; margin: 2em; }
     #poster { max-width: 300px; margin-top: 2em; }
-    #result { margin-top: 1em; }
-    .loading { color: #666; }
-    .error { color: #d32f2f; }
-    .success { color: #2e7d32; }
+    .upload-section { margin: 2em 0; }
   </style>
 </head>
 <body>
   <h1>IMDb Watchlist Picker</h1>
-  <label for="imdbId">Enter IMDb User ID:</label>
-  <input type="text" id="imdbId" placeholder="ur1234567" />
-  <button id="fetchBtn">Fetch Watchlist + Pick Random</button>
+  <div class="upload-section">
+    <label for="csvUpload">Upload your IMDb watchlist CSV file:</label>
+    <input type="file" id="csvUpload" accept=".csv" />
+  </div>
   <div id="result"></div>
   <img id="poster" style="display:none" />
 
-  <script>
-    document.getElementById('fetchBtn').addEventListener('click', async function() {
-      const userId = document.getElementById('imdbId').value.trim();
-      const resultDiv = document.getElementById('result');
-      const posterImg = document.getElementById('poster');
-      
-      if (!userId) {
-        resultDiv.innerHTML = '<div class="error">Please enter a valid IMDb User ID</div>';
-        return;
-      }
-      
-      // Reset UI
-      posterImg.style.display = 'none';
-      resultDiv.innerHTML = '<div class="loading">Fetching watchlist...</div>';
-      
-      try {
-        // Step 1: Fetch the public IMDb watchlist CSV
-        const csvUrl = `https://www.imdb.com/user/${userId}/watchlist/export`;
-        const response = await fetch(csvUrl);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch watchlist. Make sure the watchlist is public.');
-        }
-        
-        const csvText = await response.text();
-        
-        // Step 2: Parse the CSV for IMDb IDs
-        const lines = csvText.split('\n');
-        const imdbIds = [];
-        
-        // Skip header line and process data lines
-        for (let i = 1; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (line) {
-            const columns = line.split(',');
-            if (columns.length > 0) {
-              const imdbId = columns[0].replace(/"/g, ''); // Remove quotes
-              if (imdbId.startsWith('tt')) {
-                imdbIds.push(imdbId);
-              }
-            }
-          }
-        }
-        
-        if (imdbIds.length === 0) {
-          throw new Error('No movies found in watchlist');
-        }
-        
-        // Step 3: Pick a random entry
-        const randomIndex = Math.floor(Math.random() * imdbIds.length);
-        const selectedImdbId = imdbIds[randomIndex];
-        
-        resultDiv.innerHTML = `<div class="loading">Selected: ${selectedImdbId}. Fetching poster...</div>`;
-        
-        // Step 4: Fetch poster from RPDB Posters API
-        const rpdbUrl = `https://api.ratingposterdb.com/${selectedImdbId}?fallback=true`;
-        const rpdbResponse = await fetch(rpdbUrl, {
-          headers: {
-            'X-API-Key': 't0-free-rpdb'
-          }
-        });
-        
-        if (!rpdbResponse.ok) {
-          throw new Error('Failed to fetch poster from RPDB');
-        }
-        
-        const rpdbData = await rpdbResponse.json();
-        
-        // Step 5: Display results and poster image
-        let posterUrl = null;
-        if (rpdbData && rpdbData.poster && rpdbData.poster.url) {
-          posterUrl = rpdbData.poster.url;
-        }
-        
-        let resultHTML = `
-          <div class="success">
-            <h3>Random Pick: ${rpdbData.title || 'Unknown Title'}</h3>
-            <p><strong>IMDb ID:</strong> ${selectedImdbId}</p>
-            <p><strong>Year:</strong> ${rpdbData.year || 'Unknown'}</p>
-            <p><strong>Rating:</strong> ${rpdbData.rating || 'Not rated'}</p>
-            <p><strong>Total items in watchlist:</strong> ${imdbIds.length}</p>
-          </div>
-        `;
-        
-        resultDiv.innerHTML = resultHTML;
-        
+<script>
+document.getElementById('csvUpload').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const text = e.target.result;
+    // Parse CSV, get all IMDb IDs in Const column (usually 2nd column)
+    const rows = text.split('\n').slice(1).filter(row => row && !/^,\s*$/.test(row));
+    const imdbIds = rows.map(row => {
+      const cols = row.split(',');
+      // IMDb ID may have quotes, remove them
+      return cols[1] ? cols[1].replace(/"/g, '').trim() : null;
+    }).filter(Boolean);
+    if (!imdbIds.length) {
+      document.getElementById('result').innerText = 'No movies found in CSV.';
+      document.getElementById('poster').style.display = 'none';
+      return;
+    }
+    // Pick random movie
+    const randomId = imdbIds[Math.floor(Math.random() * imdbIds.length)];
+    document.getElementById('result').innerText = `Random IMDb ID: ${randomId}`;
+    // Fetch poster from RPDB
+    fetch(`https://api.ratingposterdb.com/${randomId}?apikey=t0-free-rpdb`)
+      .then(resp => resp.json())
+      .then(data => {
+        const posterUrl = data.poster_url || data.posterUrl || '';
         if (posterUrl) {
+          const posterImg = document.getElementById('poster');
           posterImg.src = posterUrl;
           posterImg.style.display = 'block';
+        } else {
+          document.getElementById('poster').style.display = 'none';
         }
-        
-      } catch (error) {
-        resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
-        console.error('Error:', error);
-      }
-    });
-  </script>
+      })
+      .catch(() => {
+        document.getElementById('result').innerText = 'Poster lookup failed.';
+        document.getElementById('poster').style.display = 'none';
+      });
+  };
+  reader.readAsText(file);
+});
+</script>
 </body>
 </html>
