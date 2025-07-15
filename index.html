@@ -8,8 +8,8 @@
     :root {
       --accent: #604bf5;
       --accent-muted: #dad7fc;
-      --accent-on-light: #181818;  /* preto */
-      --accent-on-dark: #f3f3f3;   /* branco */
+      --accent-on-light: #181818;      /* black for buttons/titles on light */
+      --accent-on-dark:  #fafafc;      /* white for buttons/titles on dark */
       --bg-light: #f7f8fa;
       --bg-dark: #181926;
       --card-light: #fff;
@@ -42,12 +42,22 @@
       flex-direction: column;
       align-items: center;
     }
-    h1 {
-      font-weight: 400;
-      font-size: 1.52em;
-      margin: 0 0 1.7em 0;
+    h1,
+    .movie-title {
+      font-weight: 700;
       letter-spacing: 0.025em;
-      color: var(--accent);
+      color: var(--accent-on-light);
+      margin-bottom: 0.5em;
+    }
+    h1 {
+      font-size: 1.52em;
+      font-weight: 400;
+      margin-top: 0;
+      margin-bottom: 1.7em;
+    }
+    .dark h1,
+    .dark .movie-title {
+      color: var(--accent-on-dark);
     }
     .card {
       width: 100%;
@@ -118,11 +128,9 @@
     }
     .dark .movie-poster { background: #23243a; border-color: #242638; }
     .movie-title {
-      font-weight: 700;
       font-size: 1.23em;
       margin-bottom: 0.10em;
       text-align:center;
-      color: var(--accent);
       letter-spacing:0.01em;
     }
     .movie-meta, .movie-rating, .movie-genre, .movie-year {
@@ -139,7 +147,7 @@
       font-size: 1.1em;
       display: flex;
       flex-wrap: wrap;
-      gap: 8px 16px; /* para mobile, espaço horizontal maior se precisar */
+      gap: 8px 16px;
       justify-content: center;
       align-items: center;
     }
@@ -305,8 +313,7 @@
                 const letterboxdUrl = `https://letterboxd.com/imdb/${imdbId}/`;
                 const rtUrl = `https://www.rottentomatoes.com/search?search=${encodeURIComponent(title)}`;
                 const mcUrl = `https://www.metacritic.com/search/${encodeURIComponent(title)}`;
-
-                // Badge row (cada span com nowrap para badges nunca serem partidos)
+                // Badge row
                 let ratingsRow = `
                   <span title="IMDb" style="color:#e3b243;background:#fff9e3;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;white-space:nowrap;">
                     ⭐ IMDb: ${imdbScore} ${imdbVotes}
@@ -354,7 +361,7 @@
             .filter(id => id && /^tt\d+$/.test(id));
           document.getElementById('tryAnother').style.display = globalImdbIds.length ? 'block' : 'none';
           tryRandomPoster();
-          // --- always reset file input value after reading ---
+          // Reset so same file can be loaded again
           event.target.value = "";
         }
       });
