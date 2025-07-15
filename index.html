@@ -325,6 +325,7 @@
                 const rating = details.vote_average !== undefined ? (details.vote_average.toFixed(1) + ' / 10') : 'N/A';
                 const votes = details.vote_count ? ` (${details.vote_count.toLocaleString()} votes)` : '';
                 const imdbUrl = `https://www.imdb.com/title/${imdbId}/`;
+                const stremioSearchUrl = `stremio://search?search=${imdbId}`;
                 const tmdbUrl = mediaType === "movie"
                   ? `https://www.themoviedb.org/movie/${tmdbId}`
                   : `https://www.themoviedb.org/tv/${tmdbId}`;
@@ -374,7 +375,7 @@
                           <a href="${letterboxdUrl}" target="_blank" rel="noopener">Letterboxd</a>
                           <a href="${rtUrl}" target="_blank" rel="noopener">RT</a>
                           <a href="${mcUrl}" target="_blank" rel="noopener">Metacritic</a>
-                          <a href="${imdbId}" class="upload-label" rel="noopener">Search in Stremio</a>
+                          <a href="${stremioSearchUrl}" class="upload-label" rel="noopener">Search in Stremio</a>
                       </div>
                       ${trailerEmbed}
                     `;
