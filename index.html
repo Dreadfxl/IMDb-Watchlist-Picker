@@ -354,6 +354,8 @@
             .filter(id => id && /^tt\d+$/.test(id));
           document.getElementById('tryAnother').style.display = globalImdbIds.length ? 'block' : 'none';
           tryRandomPoster();
+          // --- always reset file input value after reading ---
+          event.target.value = "";
         }
       });
     });
