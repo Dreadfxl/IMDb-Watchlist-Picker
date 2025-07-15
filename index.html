@@ -19,7 +19,7 @@
       --shadow: 0 6px 32px 0 rgba(44,40,77,0.09), 0 1.5px 7px 0 rgba(0,0,0,0.02);
     }
     body {
-      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       margin: 0;
       padding: 0;
       min-height: 100vh;
@@ -129,6 +129,11 @@
       margin-top: 0.15em;
       font-weight: 600;
       font-size: 1.1em;
+      display: flex;             /* Permite badges lado a lado */
+      flex-wrap: wrap;           /* Quebra para baixo se não couber */
+      gap: 8px;                  /* Espaçamento entre badges */
+      justify-content: center;   /* Centralizar contents */
+      align-items: center;
     }
     .movie-desc {
       color: #4f5081; 
