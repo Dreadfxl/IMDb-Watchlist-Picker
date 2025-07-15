@@ -180,7 +180,7 @@ function tryRandomPoster(attempts = 10) {
           const tmdbUrl = `https://www.themoviedb.org/movie/${tmdbId}`;
           const letterboxdUrl = `https://letterboxd.com/imdb/${imdbId}/`;
           const rtUrl = `https://www.rottentomatoes.com/search?search=${encodeURIComponent(title)}`;
-          const mcUrl = `https://www.metacritic.com/search/all/${encodeURIComponent(title)}/results`;
+          const mcUrl = `https://www.metacritic.com/search/${encodeURIComponent(title)}`;
           let html = `
             <div style="margin-bottom:1.2em;text-align:left;display:flex;flex-direction:column;align-items:center;">
               <div style="font-size:1.32em;font-weight:700;color:#282036;margin-bottom:2px">${title} <span style="font-weight:400;color:#b1aee1;font-size:0.88em">${year}</span></div>
