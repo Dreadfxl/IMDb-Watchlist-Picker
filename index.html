@@ -186,6 +186,22 @@
       background: var(--accent);
       color: #fff;
     }
+    .trailer {
+      margin: 1.2em auto 0 auto;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    .trailer iframe {
+      width: 100%;
+      min-width: 250px;
+      max-width: 370px;
+      aspect-ratio: 16/9;
+      border-radius: 10px;
+      background: #000;
+      min-height: 150px;
+      border: none;
+    }
     #tryAnother {
       margin: 0.5em auto 0 auto;
       box-shadow: 0 1.5px 10px 0 rgba(76,96,255,0.058);
@@ -202,6 +218,7 @@
       .main { padding: 0 0.2em;}
       .card { padding: 1.4em 0.4em 1.5em;}
       .movie-rating { flex-direction: column; gap: 6px 0; }
+      .trailer iframe { max-width: 100%; }
     }
   </style>
 </head>
@@ -314,36 +331,56 @@
                 const letterboxdUrl = `https://letterboxd.com/imdb/${imdbId}/`;
                 const rtUrl = `https://www.rottentomatoes.com/search?search=${encodeURIComponent(title)}`;
                 const mcUrl = `https://www.metacritic.com/search/${encodeURIComponent(title)}`;
-                // Badge row
-                let ratingsRow = `
-                  <span title="IMDb" style="color:#e3b243;background:#fff9e3;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;white-space:nowrap;">
-                    ⭐ IMDb: ${imdbScore} ${imdbVotes}
-                  </span>`;
-                if (rtScore)
-                  ratingsRow += `<span title="Rotten Tomatoes" style="color:#df3125;background:#fff3f2;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;white-space:nowrap;">🍅 RT: ${rtScore}</span>`;
-                if (mcScore)
-                  ratingsRow += `<span title="Metacritic" style="color:#3182c8;background:#edf6ff;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;white-space:nowrap;">📰 MC: ${mcScore}</span>`;
-                ratingsRow += `<span title="TMDB Community" style="color:#6666dd;background:#f0f1fc;border-radius:4px;padding:.1em .55em .09em 0.53em;font-weight:500;white-space:nowrap;">TMDB: ${rating}${votes}</span>`;
+                // NEW - get trailer
+                const videoApiUrl = `https://api.themoviedb.org/3/${mediaType}/${tmdbId}/videos?api_key=${tmdbKey}`;
+                fetch(videoApiUrl)
+                  .then(resp3 => resp3.json())
+                  .then(videoData => {
+                    const trailer = (videoData.results || []).find(
+                      v => v.site === "YouTube" && v.type === "Trailer"
+                    );
+                    let trailerEmbed = "";
+                    if (trailer) {
+                      trailerEmbed = `
+                        <div class="trailer">
+                          <iframe src="https://www.youtube.com/embed/${trailer.key}"
+                            frameborder="0" allow="autoplay; encrypted-media"
+                            allowfullscreen title="Trailer"></iframe>
+                        </div>
+                      `;
+                    }
+                    // Badge row
+                    let ratingsRow = `
+                      <span title="IMDb" style="color:#e3b243;background:#fff9e3;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;white-space:nowrap;">
+                        ⭐ IMDb: ${imdbScore} ${imdbVotes}
+                      </span>`;
+                    if (rtScore)
+                      ratingsRow += `<span title="Rotten Tomatoes" style="color:#df3125;background:#fff3f2;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;white-space:nowrap;">🍅 RT: ${rtScore}</span>`;
+                    if (mcScore)
+                      ratingsRow += `<span title="Metacritic" style="color:#3182c8;background:#edf6ff;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;white-space:nowrap;">📰 MC: ${mcScore}</span>`;
+                    ratingsRow += `<span title="TMDB Community" style="color:#6666dd;background:#f0f1fc;border-radius:4px;padding:.1em .55em .09em 0.53em;font-weight:500;white-space:nowrap;">TMDB: ${rating}${votes}</span>`;
 
-                document.getElementById('movieCard').innerHTML = `
-                  <img class="movie-poster" src="https://image.tmdb.org/t/p/w500${posterPath}"
-                    onerror="this.style.display='none'" alt="${title} poster"/>
-                  <div class="movie-title">${title}</div>
-                  <div class="movie-year">${year || ''}</div>
-                  <div class="movie-genre">${genres}</div>
-                  <div class="movie-rating" style="margin:0.6em 0 0.4em 0;font-size:1em;">${ratingsRow}</div>
-                  <div class="movie-desc">${overview || ''}</div>
-                  <div class="platform-links">
-                      <a href="${imdbUrl}" target="_blank" rel="noopener">IMDb</a>
-                      <a href="${tmdbUrl}" target="_blank" rel="noopener">TMDB</a>
-                      <a href="${letterboxdUrl}" target="_blank" rel="noopener">Letterboxd</a>
-                      <a href="${rtUrl}" target="_blank" rel="noopener">RT</a>
-                      <a href="${mcUrl}" target="_blank" rel="noopener">Metacritic</a>
-                  </div>
-                `;
-                document.getElementById('movieCard').style.display = "flex";
-                resultDiv.innerText = "";
-                document.getElementById('tryAnother').style.display = 'block';
+                    document.getElementById('movieCard').innerHTML = `
+                      <img class="movie-poster" src="https://image.tmdb.org/t/p/w500${posterPath}"
+                        onerror="this.style.display='none'" alt="${title} poster"/>
+                      <div class="movie-title">${title}</div>
+                      <div class="movie-year">${year || ''}</div>
+                      <div class="movie-genre">${genres}</div>
+                      <div class="movie-rating" style="margin:0.6em 0 0.4em 0;font-size:1em;">${ratingsRow}</div>
+                      <div class="movie-desc">${overview || ''}</div>
+                      <div class="platform-links">
+                          <a href="${imdbUrl}" target="_blank" rel="noopener">IMDb</a>
+                          <a href="${tmdbUrl}" target="_blank" rel="noopener">TMDB</a>
+                          <a href="${letterboxdUrl}" target="_blank" rel="noopener">Letterboxd</a>
+                          <a href="${rtUrl}" target="_blank" rel="noopener">RT</a>
+                          <a href="${mcUrl}" target="_blank" rel="noopener">Metacritic</a>
+                      </div>
+                      ${trailerEmbed}
+                    `;
+                    document.getElementById('movieCard').style.display = "flex";
+                    resultDiv.innerText = "";
+                    document.getElementById('tryAnother').style.display = 'block';
+                  }).catch(()=>pickAndTry(nth+1));
               }).catch(()=>pickAndTry(nth+1));
             }).catch(()=>pickAndTry(nth+1));
         }).catch(()=>pickAndTry(nth+1));
