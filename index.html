@@ -375,7 +375,9 @@
                           <a href="${letterboxdUrl}" target="_blank" rel="noopener">Letterboxd</a>
                           <a href="${rtUrl}" target="_blank" rel="noopener">RT</a>
                           <a href="${mcUrl}" target="_blank" rel="noopener">Metacritic</a>
-                          <a href="${stremioSearchUrl}" class="upload-label" rel="noopener">Search in Stremio</a>
+                          <a href="stremio://search?search=${imdbId}" style="background:#4e35ae;color:#fff;padding:0.6em 1.1em;border-radius:7px;font-weight:500;margin-top:8px;display:inline-block;text-decoration:none;" rel="noopener">
+                            Open in Stremio
+                          </a>
                       </div>
                       ${trailerEmbed}
                     `;
