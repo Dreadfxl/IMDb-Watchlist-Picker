@@ -226,70 +226,112 @@
         return;
       }
       const tried = new Set();
-      function pickAndTry(nth) {
-        if (tried.size >= Math.min(attempts, globalImdbIds.length)) {
-          resultDiv.innerText = 'No posters found for any titles in your list.';
-          document.getElementById('tryAnother').style.display = 'block';
-          return;
-        }
-        let idx;
-        do {
-          idx = Math.floor(Math.random() * globalImdbIds.length);
-        } while (tried.has(idx) && tried.size < globalImdbIds.length);
-        tried.add(idx);
-
-        const imdbId = globalImdbIds[idx];
-        resultDiv.innerText = `...`;
-        const tmdbKey = "72357177e7cf80085610bb1f10cae476";
-        fetch(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${tmdbKey}&language=en-US&external_source=imdb_id`)
-          .then(resp => resp.json())
-          .then(data => {
-            let tmdbId=null, posterPath='', title='', year='', overview='';
-            if (data.movie_results && data.movie_results.length) {
-              const m = data.movie_results[0];
-              tmdbId = m.id; posterPath = m.poster_path; title = m.title || m.original_title; year = m.release_date?.slice(0,4); overview = m.overview;
-            } else if (data.tv_results && data.tv_results.length) {
-              const t = data.tv_results[0];
-              tmdbId = t.id; posterPath = t.poster_path; title = t.name || t.original_name; year = t.first_air_date?.slice(0,4); overview = t.overview;
-            }
-            if (!tmdbId|| !posterPath) return pickAndTry(nth+1);
-
-            fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${tmdbKey}&language=en-US`)
-              .then(resp2 => resp2.json())
-              .then(details => {
-                const genres = (details.genres||[]).map(g=>g.name).join(', ');
-                const rating = details.vote_average !== undefined ? (details.vote_average.toFixed(1) + ' / 10') : 'N/A';
-                const votes = details.vote_count ? ` (${details.vote_count.toLocaleString()} votes)` : '';
-                const imdbUrl = `https://www.imdb.com/title/${imdbId}/`;
-                const tmdbUrl = `https://www.themoviedb.org/movie/${tmdbId}`;
-                const letterboxdUrl = `https://letterboxd.com/imdb/${imdbId}/`;
-                const rtUrl = `https://www.rottentomatoes.com/search?search=${encodeURIComponent(title)}`;
-                const mcUrl = `https://www.metacritic.com/search/${encodeURIComponent(title)}`;
-
-                document.getElementById('movieCard').innerHTML = `
-                  <img class="movie-poster" src="https://image.tmdb.org/t/p/w500${posterPath}" 
-                    onerror="this.style.display='none'" alt="${title} poster"/>
-                  <div class="movie-title">${title}</div>
-                  <div class="movie-year">${year}</div>
-                  <div class="movie-genre">${genres}</div>
-                  <div class="movie-rating">TMDB: ${rating}${votes}</div>
-                  <div class="movie-desc">${overview || ''}</div>
-                  <div class="platform-links">
-                      <a href="${imdbUrl}" target="_blank" rel="noopener">IMDb</a>
-                      <a href="${tmdbUrl}" target="_blank" rel="noopener">TMDB</a>
-                      <a href="${letterboxdUrl}" target="_blank" rel="noopener">Letterboxd</a>
-                      <a href="${rtUrl}" target="_blank" rel="noopener">RT</a>
-                      <a href="${mcUrl}" target="_blank" rel="noopener">Metacritic</a>
-                  </div>
-                `;
-                document.getElementById('movieCard').style.display = "flex";
-                resultDiv.innerText = "";
-                document.getElementById('tryAnother').style.display = 'block';
-              }).catch(()=> pickAndTry(nth+1));
-          }).catch(()=> pickAndTry(nth+1));
-      }
-      pickAndTry(0);
+      function tryRandomPoster(attempts = 10) {
+  document.getElementById('movieCard').style.display = "none";
+  const resultDiv = document.getElementById("result");
+  if (!globalImdbIds.length) {
+    resultDiv.innerText = 'No movies found in CSV.';
+    document.getElementById('tryAnother').style.display = 'none';
+    return;
+  }
+  const tried = new Set();
+  function pickAndTry(nth) {
+    if (tried.size >= Math.min(attempts, globalImdbIds.length)) {
+      resultDiv.innerText = 'No posters found for any titles in your list.';
+      document.getElementById('tryAnother').style.display = 'block';
+      return;
     }
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * globalImdbIds.length);
+    } while (tried.has(idx) && tried.size < globalImdbIds.length);
+    tried.add(idx);
+
+    const imdbId = globalImdbIds[idx];
+    resultDiv.innerText = `...`;
+
+    const tmdbKey = "72357177e7cf80085610bb1f10cae476";
+    const omdbKey = "b0a91702";
+
+    // Fetch TMDB for poster, genre, desc, year
+    fetch(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${tmdbKey}&language=en-US&external_source=imdb_id`)
+    .then(resp => resp.json())
+    .then(data => {
+      let tmdbId=null, posterPath='', title='', year='', overview='';
+      if (data.movie_results && data.movie_results.length) {
+        const m = data.movie_results[0];
+        tmdbId = m.id; posterPath = m.poster_path; title = m.title || m.original_title; year = m.release_date?.slice(0,4); overview = m.overview;
+      } else if (data.tv_results && data.tv_results.length) {
+        const t = data.tv_results[0];
+        tmdbId = t.id; posterPath = t.poster_path; title = t.name || t.original_name; year = t.first_air_date?.slice(0,4); overview = t.overview;
+      }
+      if (!tmdbId|| !posterPath) return pickAndTry(nth+1);
+
+      // Fetch details for genres/votes
+      fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${tmdbKey}&language=en-US`)
+      .then(resp2 => resp2.json())
+      .then(details => {
+        const genres = (details.genres||[]).map(g=>g.name).join(', ');
+        // Fetch OMDb for IMDb, RT, Metacritic ratings
+        fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${omdbKey}`)
+        .then(omdbResp => omdbResp.json())
+        .then(omdb => {
+          // IMDb
+          const imdbScore = omdb.imdbRating && omdb.imdbRating != "N/A" ? omdb.imdbRating : "—";
+          const imdbVotes = omdb.imdbVotes && omdb.imdbVotes != "N/A" ? `(${omdb.imdbVotes} votes)` : "";
+          // Rotten Tomatoes & Metacritic
+          let rtScore="", mcScore="";
+          if (omdb.Ratings) {
+            omdb.Ratings.forEach(r => {
+              if(r.Source==="Rotten Tomatoes") rtScore=r.Value;
+              if(r.Source==="Metacritic") mcScore=r.Value;
+            });
+          }
+          const rating = details.vote_average !== undefined ? (details.vote_average.toFixed(1) + ' / 10') : 'N/A';
+          const votes = details.vote_count ? ` (${details.vote_count.toLocaleString()} votes)` : '';
+          const imdbUrl = `https://www.imdb.com/title/${imdbId}/`;
+          const tmdbUrl = `https://www.themoviedb.org/movie/${tmdbId}`;
+          const letterboxdUrl = `https://letterboxd.com/imdb/${imdbId}/`;
+          const rtUrl = `https://www.rottentomatoes.com/search?search=${encodeURIComponent(title)}`;
+          const mcUrl = `https://www.metacritic.com/search/${encodeURIComponent(title)}`;
+
+          // Badges
+          let ratingsRow = `
+            <span title="IMDb" style="color:#e3b243;background:#fff9e3;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;">
+              ⭐ IMDb: ${imdbScore} ${imdbVotes}
+            </span>`;
+          if (rtScore)
+            ratingsRow += `<span title="Rotten Tomatoes" style="color:#df3125;background:#fff3f2;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;">🍅 RT: ${rtScore}</span>`;
+          if (mcScore)
+            ratingsRow += `<span title="Metacritic" style="color:#3182c8;background:#edf6ff;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;">📰 MC: ${mcScore}</span>`;
+          ratingsRow += `<span title="TMDB Community" style="color:#6666dd;background:#f0f1fc;border-radius:4px;padding:.1em .55em .09em 0.53em;font-weight:500;">TMDB: ${rating}${votes}</span>`;
+
+          document.getElementById('movieCard').innerHTML = `
+            <img class="movie-poster" src="https://image.tmdb.org/t/p/w500${posterPath}"
+              onerror="this.style.display='none'" alt="${title} poster"/>
+            <div class="movie-title">${title}</div>
+            <div class="movie-year">${year}</div>
+            <div class="movie-genre">${genres}</div>
+            <div class="movie-rating" style="margin:0.6em 0 0.4em 0;font-size:1em;">${ratingsRow}</div>
+            <div class="movie-desc">${overview || ''}</div>
+            <div class="platform-links">
+                <a href="${imdbUrl}" target="_blank" rel="noopener">IMDb</a>
+                <a href="${tmdbUrl}" target="_blank" rel="noopener">TMDB</a>
+                <a href="${letterboxdUrl}" target="_blank" rel="noopener">Letterboxd</a>
+                <a href="${rtUrl}" target="_blank" rel="noopener">RT</a>
+                <a href="${mcUrl}" target="_blank" rel="noopener">Metacritic</a>
+            </div>
+          `;
+          document.getElementById('movieCard').style.display = "flex";
+          resultDiv.innerText = "";
+          document.getElementById('tryAnother').style.display = 'block';
+        }).catch(()=>pickAndTry(nth+1));
+      }).catch(()=>pickAndTry(nth+1));
+    }).catch(()=>pickAndTry(nth+1));
+  }
+  pickAndTry(0);
+}
+
     document.getElementById('csvUpload').addEventListener('change', function(event) {
       const file = event.target.files[0];
       if (!file) return;
