@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IMDb Watchlist Picker</title>
   <style>
     body { font-family: sans-serif; margin: 2em; }
     #poster { max-width: 300px; margin-top: 2em; }
+    #result { margin-top: 1em; }
+    .loading { color: #666; }
+    .error { color: #d32f2f; }
+    .success { color: #2e7d32; }
   </style>
 </head>
 <body>
@@ -15,8 +20,103 @@
   <button id="fetchBtn">Fetch Watchlist + Pick Random</button>
   <div id="result"></div>
   <img id="poster" style="display:none" />
-<script>
-// To be filled: See next step!
-</script>
+
+  <script>
+    document.getElementById('fetchBtn').addEventListener('click', async function() {
+      const userId = document.getElementById('imdbId').value.trim();
+      const resultDiv = document.getElementById('result');
+      const posterImg = document.getElementById('poster');
+      
+      if (!userId) {
+        resultDiv.innerHTML = '<div class="error">Please enter a valid IMDb User ID</div>';
+        return;
+      }
+      
+      // Reset UI
+      posterImg.style.display = 'none';
+      resultDiv.innerHTML = '<div class="loading">Fetching watchlist...</div>';
+      
+      try {
+        // Step 1: Fetch the public IMDb watchlist CSV
+        const csvUrl = `https://www.imdb.com/user/${userId}/watchlist/export`;
+        const response = await fetch(csvUrl);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch watchlist. Make sure the watchlist is public.');
+        }
+        
+        const csvText = await response.text();
+        
+        // Step 2: Parse the CSV for IMDb IDs
+        const lines = csvText.split('\n');
+        const imdbIds = [];
+        
+        // Skip header line and process data lines
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (line) {
+            const columns = line.split(',');
+            if (columns.length > 0) {
+              const imdbId = columns[0].replace(/"/g, ''); // Remove quotes
+              if (imdbId.startsWith('tt')) {
+                imdbIds.push(imdbId);
+              }
+            }
+          }
+        }
+        
+        if (imdbIds.length === 0) {
+          throw new Error('No movies found in watchlist');
+        }
+        
+        // Step 3: Pick a random entry
+        const randomIndex = Math.floor(Math.random() * imdbIds.length);
+        const selectedImdbId = imdbIds[randomIndex];
+        
+        resultDiv.innerHTML = `<div class="loading">Selected: ${selectedImdbId}. Fetching poster...</div>`;
+        
+        // Step 4: Fetch poster from RPDB Posters API
+        const rpdbUrl = `https://api.ratingposterdb.com/${selectedImdbId}?fallback=true`;
+        const rpdbResponse = await fetch(rpdbUrl, {
+          headers: {
+            'X-API-Key': 't0-free-rpdb'
+          }
+        });
+        
+        if (!rpdbResponse.ok) {
+          throw new Error('Failed to fetch poster from RPDB');
+        }
+        
+        const rpdbData = await rpdbResponse.json();
+        
+        // Step 5: Display results and poster image
+        let posterUrl = null;
+        if (rpdbData && rpdbData.poster && rpdbData.poster.url) {
+          posterUrl = rpdbData.poster.url;
+        }
+        
+        let resultHTML = `
+          <div class="success">
+            <h3>Random Pick: ${rpdbData.title || 'Unknown Title'}</h3>
+            <p><strong>IMDb ID:</strong> ${selectedImdbId}</p>
+            <p><strong>Year:</strong> ${rpdbData.year || 'Unknown'}</p>
+            <p><strong>Rating:</strong> ${rpdbData.rating || 'Not rated'}</p>
+            <p><strong>Total items in watchlist:</strong> ${imdbIds.length}</p>
+          </div>
+        `;
+        
+        resultDiv.innerHTML = resultHTML;
+        
+        if (posterUrl) {
+          posterImg.src = posterUrl;
+          posterImg.style.display = 'block';
+        }
+        
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        console.error('Error:', error);
+      }
+    });
+  </script>
 </body>
 </html>
