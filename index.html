@@ -368,6 +368,7 @@
                       <div class="movie-genre">${genres}</div>
                       <div class="movie-rating" style="margin:0.6em 0 0.4em 0;font-size:1em;">${ratingsRow}</div>
                       <div class="movie-desc">${overview || ''}</div>
+                      const openWithStremioUrl = `https://stremio.com/opens?imdb_id=${imdbId}`;
                       <div class="platform-links">
                           <a href="${imdbUrl}" target="_blank" rel="noopener">IMDb</a>
                           <a href="${tmdbUrl}" target="_blank" rel="noopener">TMDB</a>
