@@ -8,8 +8,10 @@
     :root {
       --accent: #604bf5;
       --accent-muted: #dad7fc;
-      --accent-on-light: #181818;      /* black for buttons/titles on light */
-      --accent-on-dark:  #fafafc;      /* white for buttons/titles on dark */
+      --button-bg-light: var(--accent);       /* Main accent for light mode */
+      --button-bg-dark: #2a2265;             /* Deep accent for dark mode */
+      --accent-on-light: #181818;            /* Button/text color on light */
+      --accent-on-dark: #fafafc;             /* Button/text color on dark */
       --bg-light: #f7f8fa;
       --bg-dark: #181926;
       --card-light: #fff;
@@ -42,8 +44,7 @@
       flex-direction: column;
       align-items: center;
     }
-    h1,
-    .movie-title {
+    h1, .movie-title {
       font-weight: 700;
       letter-spacing: 0.025em;
       color: var(--accent-on-light);
@@ -55,8 +56,7 @@
       margin-top: 0;
       margin-bottom: 1.7em;
     }
-    .dark h1,
-    .dark .movie-title {
+    .dark h1, .dark .movie-title {
       color: var(--accent-on-dark);
     }
     .card {
@@ -79,7 +79,7 @@
       border-color: var(--border-dark);
     }
     .upload-label, #tryAnother {
-      background: var(--accent);
+      background: var(--button-bg-light);
       color: var(--accent-on-light);
       display: inline-block;
       border-radius: 8px;
@@ -95,6 +95,7 @@
       text-align: center;
     }
     .dark .upload-label, .dark #tryAnother {
+      background: var(--button-bg-dark);
       color: var(--accent-on-dark);
     }
     .upload-label:hover, .upload-label:focus, #tryAnother:hover, #tryAnother:focus {
@@ -361,7 +362,6 @@
             .filter(id => id && /^tt\d+$/.test(id));
           document.getElementById('tryAnother').style.display = globalImdbIds.length ? 'block' : 'none';
           tryRandomPoster();
-          // Reset so same file can be loaded again
           event.target.value = "";
         }
       });
