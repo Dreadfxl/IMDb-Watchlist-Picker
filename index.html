@@ -26,37 +26,41 @@ document.getElementById('csvUpload').addEventListener('change', function(event) 
 
   reader.onload = function(e) {
     const text = e.target.result;
-    // Parse CSV, get all IMDb IDs in Const column (usually 2nd column)
+    // Parse CSV: IMDb IDs are in the "Const" column (usually 2nd)
     const rows = text.split('\n').slice(1).filter(row => row && !/^,\s*$/.test(row));
     const imdbIds = rows.map(row => {
-      const cols = row.split(',');
-      // IMDb ID may have quotes, remove them
-      return cols[1] ? cols[1].replace(/"/g, '').trim() : null;
-    }).filter(Boolean);
+      // Handles quoted CSV
+      const cols = row.split('","').map(col => col.replace(/^"|"$/g, '').trim());
+      return cols[1]; // 1 = Const (IMDb ID)
+    }).filter(id => /^tt\d+$/.test(id)); // Only valid IMDb IDs
     if (!imdbIds.length) {
       document.getElementById('result').innerText = 'No movies found in CSV.';
       document.getElementById('poster').style.display = 'none';
       return;
     }
-    // Pick random movie
+    // Pick a random movie
     const randomId = imdbIds[Math.floor(Math.random() * imdbIds.length)];
     document.getElementById('result').innerText = `Random IMDb ID: ${randomId}`;
-    // Fetch poster from RPDB
-    fetch(`https://api.ratingposterdb.com/${randomId}?apikey=t0-free-rpdb`)
-      .then(resp => resp.json())
+    // Fetch poster from RPDB Tier 0 endpoint
+    fetch(`https://api.ratingposterdb.com/${randomId}/poster-default?apikey=t0-free-rpdb`)
+      .then(resp => {
+        if (resp.status === 403) throw new Error('This poster is unavailable for Tier 0 (free) users.');
+        return resp.json();
+      })
       .then(data => {
-        const posterUrl = data.poster_url || data.posterUrl || '';
+        const posterUrl = data.poster_url || data.url || '';
         if (posterUrl) {
           const posterImg = document.getElementById('poster');
           posterImg.src = posterUrl;
           posterImg.style.display = 'block';
         } else {
           document.getElementById('poster').style.display = 'none';
+          document.getElementById('result').innerText += '\nNo poster available via RPDB.';
         }
       })
-      .catch(() => {
-        document.getElementById('result').innerText = 'Poster lookup failed.';
+      .catch(err => {
         document.getElementById('poster').style.display = 'none';
+        document.getElementById('result').innerText += `\nPoster lookup failed: ${err.message || err}`;
       });
   };
   reader.readAsText(file);
