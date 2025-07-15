@@ -1,73 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>IMDb Watchlist Picker</title>
   <style>
     body { font-family: sans-serif; margin: 2em; }
     #poster { max-width: 300px; margin-top: 2em; }
-    #result { margin-top: 1em; }
-    .loading { color: #666; }
-    .error { color: #d32f2f; }
-    .success { color: #2e7d32; }
+    .upload-section { margin: 2em 0; }
   </style>
 </head>
 <body>
   <h1>IMDb Watchlist Picker</h1>
-  <label for="imdbId">Enter IMDb User ID:</label>
-  <input type="text" id="imdbId" placeholder="ur1234567" />
-  <button id="fetchBtn">Fetch Watchlist + Pick Random</button>
+  <div class="upload-section">
+    <label for="csvUpload">Upload your IMDb watchlist CSV file:</label>
+    <input type="file" id="csvUpload" accept=".csv" />
+  </div>
   <div id="result"></div>
   <img id="poster" style="display:none" />
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script>
+
+<script>
 document.getElementById('csvUpload').addEventListener('change', function(event) {
   const file = event.target.files[0];
   if (!file) return;
+  const reader = new FileReader();
 
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: function(results) {
-      // Find the Const column and filter for valid IMDb IDs
-      const imdbIds = results.data
-        .map(row => row['Const'] && row['Const'].trim())
-        .filter(id => id && /^tt\d+$/.test(id));
-
-      if (!imdbIds.length) {
-        document.getElementById('result').innerText = 'No movies found in CSV.';
-        document.getElementById('poster').style.display = 'none';
-        return;
-      }
-
-      // Pick a random movie
-      const randomId = imdbIds[Math.floor(Math.random() * imdbIds.length)];
-      document.getElementById('result').innerText = `Random IMDb ID: ${randomId}`;
-
-      // Fetch poster from RPDB Tier 0 endpoint
-      fetch(`https://api.ratingposterdb.com/${randomId}/poster-default?apikey=t0-free-rpdb`)
-        .then(resp => {
-          if (resp.status === 403) throw new Error('This poster is unavailable for Tier 0 (free) users.');
-          return resp.json();
-        })
-        .then(data => {
-          const posterUrl = data.poster_url || data.url || '';
-          if (posterUrl) {
-            const posterImg = document.getElementById('poster');
-            posterImg.src = posterUrl;
-            posterImg.style.display = 'block';
-          } else {
-            document.getElementById('poster').style.display = 'none';
-            document.getElementById('result').innerText += '\nNo poster available via RPDB.';
-          }
-        })
-        .catch(err => {
-          document.getElementById('poster').style.display = 'none';
-          document.getElementById('result').innerText += `\nPoster lookup failed: ${err.message || err}`;
-        });
+  reader.onload = function(e) {
+    const text = e.target.result;
+    // Parse CSV: IMDb IDs are in the "Const" column (usually 2nd)
+    const rows = text.split('\n').slice(1).filter(row => row && !/^,\s*$/.test(row));
+    const imdbIds = rows.map(row => {
+      // Handles quoted CSV
+      const cols = row.split('","').map(col => col.replace(/^"|"$/g, '').trim());
+      return cols[1]; // 1 = Const (IMDb ID)
+    }).filter(id => /^tt\d+$/.test(id)); // Only valid IMDb IDs
+    if (!imdbIds.length) {
+      document.getElementById('result').innerText = 'No movies found in CSV.';
+      document.getElementById('poster').style.display = 'none';
+      return;
     }
-  });
+    // Pick a random movie
+    const randomId = imdbIds[Math.floor(Math.random() * imdbIds.length)];
+    document.getElementById('result').innerText = `Random IMDb ID: ${randomId}`;
+    // Fetch poster from RPDB Tier 0 endpoint
+    fetch(`https://api.ratingposterdb.com/${randomId}/poster-default?apikey=t0-free-rpdb`)
+      .then(resp => {
+        if (resp.status === 403) throw new Error('This poster is unavailable for Tier 0 (free) users.');
+        return resp.json();
+      })
+      .then(data => {
+        const posterUrl = data.poster_url || data.url || '';
+        if (posterUrl) {
+          const posterImg = document.getElementById('poster');
+          posterImg.src = posterUrl;
+          posterImg.style.display = 'block';
+        } else {
+          document.getElementById('poster').style.display = 'none';
+          document.getElementById('result').innerText += '\nNo poster available via RPDB.';
+        }
+      })
+      .catch(err => {
+        document.getElementById('poster').style.display = 'none';
+        document.getElementById('result').innerText += `\nPoster lookup failed: ${err.message || err}`;
+      });
+  };
+  reader.readAsText(file);
 });
 </script>
 </body>
