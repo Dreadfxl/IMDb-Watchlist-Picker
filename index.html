@@ -218,15 +218,6 @@
     // Main logic
     let globalImdbIds = [];
     function tryRandomPoster(attempts = 10) {
-      document.getElementById('movieCard').style.display = "none";
-      const resultDiv = document.getElementById("result");
-      if (!globalImdbIds.length) {
-        resultDiv.innerText = 'No movies found in CSV.';
-        document.getElementById('tryAnother').style.display = 'none';
-        return;
-      }
-      const tried = new Set();
-      function tryRandomPoster(attempts = 10) {
   document.getElementById('movieCard').style.display = "none";
   const resultDiv = document.getElementById("result");
   if (!globalImdbIds.length) {
@@ -293,9 +284,9 @@
           const tmdbUrl = `https://www.themoviedb.org/movie/${tmdbId}`;
           const letterboxdUrl = `https://letterboxd.com/imdb/${imdbId}/`;
           const rtUrl = `https://www.rottentomatoes.com/search?search=${encodeURIComponent(title)}`;
-          const mcUrl = `https://www.metacritic.com/search/${encodeURIComponent(title)}`;
+          const mcUrl = `https://www.metacritic.com/search/all/${encodeURIComponent(title)}/results`;
 
-          // Badges
+          // Badge row
           let ratingsRow = `
             <span title="IMDb" style="color:#e3b243;background:#fff9e3;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;">
               ⭐ IMDb: ${imdbScore} ${imdbVotes}
@@ -331,7 +322,6 @@
   }
   pickAndTry(0);
 }
-
     document.getElementById('csvUpload').addEventListener('change', function(event) {
       const file = event.target.files[0];
       if (!file) return;
