@@ -33,22 +33,37 @@
       }
       const tried = new Set();
       function pickAndTry(nth) {
-        if (tried.size >= Math.min(attempts, globalImdbIds.length)) {
-          document.getElementById('result').innerText = 'No posters found for any titles in your list on the free tier.';
-          document.getElementById('poster').style.display = 'none';
-          document.getElementById('tryAnother').style.display = 'block';
-          return;
-        }
-        let idx;
-        do {
-          idx = Math.floor(Math.random() * globalImdbIds.length);
-        } while (tried.has(idx) && tried.size < globalImdbIds.length);
-        tried.add(idx);
+  if (tried.size >= Math.min(attempts, globalImdbIds.length)) {
+    document.getElementById('result').innerText = 'No posters found for any titles in your list.';
+    document.getElementById('poster').style.display = 'none';
+    document.getElementById('tryAnother').style.display = 'block';
+    return;
+  }
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * globalImdbIds.length);
+  } while (tried.has(idx) && tried.size < globalImdbIds.length);
+  tried.add(idx);
 
-        const randomId = globalImdbIds[idx];
-        document.getElementById('result').innerText = `Trying: ${randomId}`;
-        const posterUrl = `https://img.ratingposterdb.com/${randomId}.jpg?apiKey=t0-free-rpdb`;
+  const randomId = globalImdbIds[idx];
+  document.getElementById('result').innerText = `Trying: ${randomId}`;
+  
+  // TMDB API fetch for this IMDb ID
+  const tmdbKey = "72357177e7cf80085610bb1f10cae476";
+  fetch(`https://api.themoviedb.org/3/find/${randomId}?api_key=${tmdbKey}&language=en-US&external_source=imdb_id`)
+    .then(resp => resp.json())
+    .then(data => {
+      // Try to get poster_path from movie_results or tv_results
+      let posterPath = '';
+      if (data.movie_results && data.movie_results.length && data.movie_results[0].poster_path) {
+        posterPath = data.movie_results[0].poster_path;
+      } else if (data.tv_results && data.tv_results.length && data.tv_results[0].poster_path) {
+        posterPath = data.tv_results[0].poster_path;
+      }
 
+      if (posterPath) {
+        // Compose full TMDB image URL (w500 size is a good default)
+        const posterUrl = `https://image.tmdb.org/t/p/w500${posterPath}`;
         const posterImg = document.getElementById('poster');
         posterImg.onerror = function() {
           posterImg.style.display = 'none';
@@ -60,9 +75,18 @@
           document.getElementById('tryAnother').style.display = 'block';
         };
         posterImg.src = posterUrl;
+      } else {
+        document.getElementById('poster').style.display = 'none';
+        pickAndTry(nth + 1);
       }
-      pickAndTry(0);
-    }
+    })
+    .catch(err => {
+      document.getElementById('poster').style.display = 'none';
+      document.getElementById('result').innerText = `Poster lookup failed: ${err.message || err}`;
+      document.getElementById('tryAnother').style.display = 'block';
+    });
+}
+
 
     document.getElementById('csvUpload').addEventListener('change', function(event) {
       const file = event.target.files[0];
