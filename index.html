@@ -3,22 +3,134 @@
 <head>
   <meta charset="UTF-8" />
   <title>IMDb Watchlist Picker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: sans-serif; margin: 2em; }
-    #poster { max-width: 300px; margin-top: 2em; }
-    .upload-section { margin: 2em 0; }
-    #tryAnother { margin-top: 1em; }
+    :root {
+      --accent: #6558f5;
+      --accent-light: #edeafd;
+      --bg: #f7f8fa;
+      --fg: #22223b;
+      --border: #e2e2e2;
+    }
+    html, body {
+      padding: 0; margin: 0;
+      background: var(--bg);
+      min-height: 100vh;
+      color: var(--fg);
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      font-size: 17px;
+      letter-spacing: 0.01em;
+    }
+    .container {
+      max-width: 420px;
+      margin: 4vh auto 0 auto;
+      background: white;
+      padding: 2em 2em 2.5em 2em;
+      border-radius: 18px;
+      box-shadow: 0 8px 28px 0 rgba(30,34,90, 0.11);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 60vh;
+    }
+    h1 {
+      font-weight: 700;
+      font-size: 1.6em;
+      margin: 0 0 0.5em;
+      letter-spacing: 0.03em;
+      color: var(--accent);
+    }
+    .upload-section {
+      margin: 2em 0 1em;
+      width: 100%;
+      text-align: center;
+    }
+    .file-upload {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+    }
+    .file-upload input[type="file"] {
+      opacity: 0;
+      width: 220px; max-width: 100%;
+      height: 48px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      cursor: pointer;
+    }
+    .upload-label {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      border-radius: 8px;
+      padding: 0.8em 1.4em;
+      font-weight: 500;
+      font-size: 1.06em;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      transition: background 0.15s;
+      box-shadow: 0 2px 8px 0 rgba(100,100,200,0.02);
+    }
+    .upload-label:hover, .upload-label:focus {
+      background: #5448d6;
+    }
+    #result {
+      margin: 1.2em 0 0.7em;
+      text-align: center;
+      color: #6a6a8f;
+      min-height: 1.2em;
+    }
+    #poster {
+      max-width: clamp(240px, 65vw, 320px);
+      margin: 1.2em auto 0 auto;
+      border-radius: 14px;
+      box-shadow: 0 3px 16px 0 rgba(60,70,150,0.11);
+      display: block;
+      background: #ececf6;
+      transition: box-shadow 0.13s, outline 0.12s;
+    }
+    #tryAnother {
+      margin: 2em auto 0 auto;
+      display: block;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.95em 2.1em;
+      font-weight: 600;
+      border-radius: 9px;
+      font-size: 1em;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      box-shadow: 0 2px 12px 0 rgba(60,60,160,0.065);
+      outline: none;
+      transition: background 0.17s, transform 0.12s;
+    }
+    #tryAnother:hover, #tryAnother:focus {
+      background: #4b42c8;
+      transform: translateY(-1px) scale(1.035);
+    }
+    @media (max-width: 650px) {
+      .container { box-shadow: none; border-radius:8px; padding: 1.2em 0.7em 2em 0.7em;}
+      #poster { max-width: 96vw; }
+    }
   </style>
 </head>
 <body>
-  <h1>IMDb Watchlist Picker</h1>
-  <div class="upload-section">
-    <label for="csvUpload">Upload your IMDb watchlist CSV file:</label>
-    <input type="file" id="csvUpload" accept=".csv" />
+  <div class="container">
+    <h1>IMDb Watchlist Picker</h1>
+    <div class="upload-section">
+      <div class="file-upload">
+        <label for="csvUpload" class="upload-label">Upload CSV file</label>
+        <input type="file" id="csvUpload" accept=".csv"/>
+      </div>
+    </div>
+    <div id="result"></div>
+    <img id="poster" style="display:none" alt="Poster" />
+    <button id="tryAnother" style="display:none">Try Another</button>
   </div>
-  <div id="result"></div>
-  <img id="poster" style="display:none" alt="Poster" />
-  <button id="tryAnother" style="display:none">Try Another</button>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
     let globalImdbIds = [];
@@ -44,7 +156,6 @@
         tried.add(idx);
         const randomId = globalImdbIds[idx];
         document.getElementById('result').innerText = `Trying: ${randomId}`;
-        // TMDB Lookup
         const tmdbKey = "72357177e7cf80085610bb1f10cae476";
         fetch(`https://api.themoviedb.org/3/find/${randomId}?api_key=${tmdbKey}&language=en-US&external_source=imdb_id`)
           .then(resp => resp.json())
@@ -88,7 +199,6 @@
         header: true,
         skipEmptyLines: true,
         complete: function(results) {
-          // Find the Const column and filter for valid IMDb IDs
           globalImdbIds = results.data
             .map(row => row['Const'] && row['Const'].trim())
             .filter(id => id && /^tt\d+$/.test(id));
@@ -98,6 +208,11 @@
       });
     });
     document.getElementById('tryAnother').onclick = () => tryRandomPoster();
+
+    // Make clicking the upload label open the file dialog
+    document.querySelector('.upload-label').addEventListener('click', function() {
+      document.getElementById('csvUpload').click();
+    });
   </script>
 </body>
 </html>
