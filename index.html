@@ -390,16 +390,24 @@
                   // MovieCard: add button in links with icon and event
                   document.getElementById('movieCard').innerHTML = `
                     <img class="movie-poster" src="https://image.tmdb.org/t/p/w500${posterPath}" onerror="this.style.display='none'" alt="${title} poster"/>
-                    <div class="platform-links">
-                    <a href="${imdbUrl}" target="_blank" rel="noopener">IMDb</a>
-                    <a href="${tmdbUrl}" target="_blank" rel="noopener">TMDB</a>
-                    <a href="${letterboxdUrl}" target="_blank" rel="noopener">Letterboxd</a>
-                    <a href="${rtUrl}" target="_blank" rel="noopener">RT</a>
-                    <a href="${mcUrl}" target="_blank" rel="noopener">Metacritic</a>
-                  </div>
-                  <button id="stremioButton" class="stremio-btn">
-                    <img src="https://www.stremio.com/website/stremio-logo-small.png" alt="Stremio">Open in Stremio
-                  </button>
+                    <div>
+                      <div class="movie-title">${title}</div>
+                      <div class="movie-year">${year || ''}</div>
+                      <div class="movie-genre">${genres}</div>
+                      <div class="movie-rating" style="margin:0.6em 0 0.4em 0;font-size:1em;">${ratingsRow}</div>
+                      <div class="movie-desc">${overview || ''}</div>
+                      <div class="platform-links">
+                        <a href="${imdbUrl}" target="_blank" rel="noopener">IMDb</a>
+                        <a href="${tmdbUrl}" target="_blank" rel="noopener">TMDB</a>
+                        <a href="${letterboxdUrl}" target="_blank" rel="noopener">Letterboxd</a>
+                        <a href="${rtUrl}" target="_blank" rel="noopener">RT</a>
+                        <a href="${mcUrl}" target="_blank" rel="noopener">Metacritic</a>
+                      </div>
+                      ${trailerEmbed}
+                    </div>
+                    <button id="stremioButton" class="stremio-btn">
+                      <img src="https://www.stremio.com/website/stremio-logo-small.png" alt="Stremio">Open in Stremio
+                    </button>
                   `;
                   document.getElementById('movieCard').style.display = "flex";
                   resultDiv.innerText = "";
