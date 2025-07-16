@@ -165,6 +165,20 @@
       min-height: 2.09em;
     }
     .dark .movie-desc { color: #b2bed4;}
+    .movie-meta {
+      color: #366;
+      font-size: 0.99em;
+      background: #f2f3fd;
+      border-radius: 8px;
+      padding: 0.7em 0.1em 0.6em 0.2em;
+      margin-bottom: 1em;
+      margin-top: 0.7em;
+      line-height: 1.55em;
+    }
+    .dark .movie-meta {
+      background: #23243a;
+      color: #a3cae6;
+    }
     .platform-links {
       display: flex;
       gap: 13px;
@@ -332,7 +346,10 @@
           .then(resp2 => resp2.json())
           .then(details => {
             const genres = (details.genres||[]).map(g=>g.name).join(', ');
-            // Fetch OMDb for ratings
+            const tmdbRuntime = details.runtime || (details.episode_run_time && details.episode_run_time[0]);
+            const tmdbProduction = (details.production_companies||[]).map(c=>c.name).join(', ');
+            const tmdbSpoken = (details.spoken_languages||[]).map(l=>l.english_name).join(', ');
+            // Fetch OMDb for ratings/metainfo
             fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${omdbKey}`)
             .then(omdbResp => omdbResp.json())
             .then(omdb => {
@@ -382,6 +399,18 @@
                     ratingsRow += `<span title="Metacritic" style="color:#3182c8;background:#edf6ff;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;white-space:nowrap;">📰 MC: ${mcScore}</span>`;
                   ratingsRow += `<span title="TMDB Community" style="color:#6666dd;background:#f0f1fc;border-radius:4px;padding:.1em .55em .09em 0.53em;font-weight:500;white-space:nowrap;">TMDB: ${rating}${votes}</span>`;
 
+                  // Compose meta section
+                  const metaHtml = `
+                    <div class="movie-meta">
+                      <strong>Director:</strong> ${omdb.Director || "—"}<br>
+                      <strong>Cast:</strong> ${omdb.Actors || "—"}<br>
+                      <strong>Runtime:</strong> ${tmdbRuntime || omdb.Runtime || "—"}<br>
+                      <strong>Country:</strong> ${omdb.Country || "—"}<br>
+                      <strong>Language:</strong> ${tmdbSpoken || omdb.Language || "—"}<br>
+                      <strong>Production:</strong> ${tmdbProduction || omdb.Production || "—"}<br>
+                      <strong>Awards:</strong> ${omdb.Awards && omdb.Awards!='N/A' ? omdb.Awards : '—'}
+                    </div>`;
+
                   // Add Stremio deep link!
                   let stremioLink = mediaType === "tv"
                     ? `stremio:///detail/series/${imdbId}`
@@ -396,6 +425,7 @@
                       <div class="movie-genre">${genres}</div>
                       <div class="movie-rating" style="margin:0.6em 0 0.4em 0;font-size:1em;">${ratingsRow}</div>
                       <div class="movie-desc">${overview || ''}</div>
+                      ${metaHtml}
                       <div class="platform-links">
                         <a href="${imdbUrl}" target="_blank" rel="noopener">IMDb</a>
                         <a href="${tmdbUrl}" target="_blank" rel="noopener">TMDB</a>
@@ -455,6 +485,6 @@
     });
   });
   document.getElementById('tryAnother').onclick = () => tryRandomPoster();
-</script>
+  </script>
 </body>
 </html>
