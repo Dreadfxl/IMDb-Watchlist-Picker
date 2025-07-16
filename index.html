@@ -234,7 +234,25 @@
       max-width: 74px;
       min-width: 74px;
     }
-    
+    .cast-gallery-member img,
+    .cast-gallery-member .empty-cast-img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #eaeefa;
+      background: #fafbfc;
+      display: block;
+    }
+    .cast-gallery-member .empty-cast-img {
+      background: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center; 
+      font-size: 1.1em;
+      color: #888;
+      font-weight: 700;
+    }
     .cast-gallery-member .cast-name {
       display: block;
       width: 74px;
