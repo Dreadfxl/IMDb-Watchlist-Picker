@@ -122,46 +122,150 @@
       box-shadow: 0 5px 32px 0 rgba(44,40,77,.095), 0 1.5px 9px 0 rgba(0,0,0,0.04);
       background: #ebedf2;
       object-fit: cover;
-      margin: 0 auto 1.5em auto;
+      margin: 0 auto 1.3em auto;
       display: block;
       border: 1px solid var(--border-light);
       transition: border 0.23s;
     }
     .dark .movie-poster { background: #23243a; border-color: #242638; }
+    .movie-title-row {
+      display: flex;
+      flex-direction: row;
+      gap: 9px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: .19em;
+    }
     .movie-title {
-      font-size: 1.23em;
-      margin-bottom: 0.10em;
-      text-align:center;
-      letter-spacing:0.01em;
-    }
-    .movie-meta, .movie-rating, .movie-genre, .movie-year {
-      width: 100%;
+      font-size: 1.19em;
+      margin-bottom: 0.08em;
+      font-weight: 700;
       text-align: center;
-      margin: 0.19em 0;
+      letter-spacing: 0.01em;
+      display: inline;
+      color: var(--accent-on-light);
     }
-    .movie-genre { color: #8082ad; font-weight: 500;}
-    .movie-year  { color: #bbbcdc; font-size:.98em;}
-    .movie-rating {
-      color: #ffab36;
-      margin-top: 0.15em;
+    .type-badge {
+      display: inline-block;
+      font-size: 0.85em;
       font-weight: 600;
-      font-size: 1.1em;
+      background: #eee;
+      color: #5A3EB6;
+      padding: 0.18em 0.74em;
+      border-radius: 16px;
+      margin-left: 8px;
+      margin-bottom: 2px;
+      letter-spacing: 0.02em;
+      vertical-align: middle;
+    }
+    .movie-year {
+      font-size: .99em;
+      color: #bbbcdc;
+      margin-bottom: 0.2em;
+      text-align: center;
+    }
+    .genre-badges {
+      margin: 5px 0 10px 0;
       display: flex;
       flex-wrap: wrap;
-      gap: 8px 16px;
+      gap: 6px;
       justify-content: center;
-      align-items: center;
     }
-    .movie-rating span {
+    .genre-badge {
+      display: inline-block;
+      background: #e3edfb;
+      color: #4b5182;
+      font-size: 0.94em;
+      font-weight: 500;
+      border-radius: 10px;
+      padding: 0.16em 0.8em;
+    }
+    .ratings-row {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 10px 0 4px 0;
+    }
+    .rating-chip {
+      display: inline-block;
+      font-size: 0.97em;
+      border-radius: 7px;
+      padding: 0.13em 0.73em;
+      background: #f4f3fc;
+      color: #4030af;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      margin: 0;
       white-space: nowrap;
     }
+    .movie-meta {
+      width: 100%;
+      text-align: center;
+      margin: 0.1em 0 0.62em 0;
+    }
+    .director-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 9px;
+    }
+    .director-block img {
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      object-fit:cover;
+      border:1px solid #eee;
+      background:#eaeefa;
+    }
+    .cast-gallery {
+      margin: 0.10em 0 0.60em 0;
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .cast-gallery-member {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 72px;
+      min-width: 60px;
+    }
+    .cast-gallery-member img,
+    .cast-gallery-member .empty-cast-img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #eaeefa;
+      background: #fafbfc;
+      display: block;
+    }
+    .cast-gallery-member .empty-cast-img {
+      background: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center; 
+      font-size: 1.1em;
+      color: #888;
+      font-weight: 700;
+    }
+    .cast-gallery-member .cast-name {
+      font-size: 0.89em;
+      margin-top: 0.18em;
+      text-align: center;
+      line-height: 1.28;
+    }
     .movie-desc {
-      color: #4f5081; 
-      font-size:1.01em; 
+      color: #4f5081;
+      font-size:1.01em;
       text-align: center;
       letter-spacing:0.013em;
       line-height: 1.56;
-      margin: 0.5em 0 1.15em 0;
+      margin: 0.58em 0 1.09em 0;
       min-height: 2.09em;
     }
     .dark .movie-desc { color: #b2bed4;}
@@ -170,7 +274,8 @@
       gap: 13px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-top: 0.5em;
+      margin-top: 0.6em;
+      margin-bottom: 0.7em;
     }
     .platform-links a {
       background: var(--accent-muted);
@@ -201,6 +306,7 @@
       background: #000;
       min-height: 150px;
       border: none;
+      margin-bottom:0;
     }
     #tryAnother {
       margin: 0.5em auto 0 auto;
@@ -214,36 +320,37 @@
       margin-bottom:.8em;
       text-align: center;
     }
-    @media (max-width: 500px) {
-      .main { padding: 0 0.2em;}
-      .card { padding: 1.4em 0.4em 1.5em;}
-      .movie-rating { flex-direction: column; gap: 6px 0; }
-      .trailer iframe { max-width: 100%; }
-    }
     .stremio-btn {
+      margin: 1.2em auto 0 auto;
       background: #fff;
       color: #5a3eb6;
       border: 1.2px solid #e7e8fc;
       border-radius: 7px;
-      font-size: 0.93em;
+      font-size: 0.99em;
       font-weight: 500;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 0.39em 0.96em 0.41em 0.96em;
+      gap: 7px;
+      padding: 0.49em 1.13em 0.48em 1.13em;
       cursor: pointer;
-      margin-top: 18px;   /* Add space above */
       box-shadow: 0 1.5px 9px 0 rgba(99,65,220,0.04);
       transition: background 0.15s, color 0.13s;
+      margin-top: 1.3em;
     }
     .stremio-btn:hover, .stremio-btn:focus {
       background: #7457f7;
       color: #fff;
     }
     .stremio-btn img {
-      width: 19px;
-      height: 19px;
+      width: 18px;
+      height: 18px;
       margin-right: 3px;
+    }
+    @media (max-width: 500px) {
+      .main { padding: 0 0.2em;}
+      .card { padding: 1.4em 0.4em 1.5em;}
+      .movie-rating { flex-direction: column; gap: 6px 0; }
+      .trailer iframe { max-width: 100%; }
     }
   </style>
 </head>
@@ -273,232 +380,238 @@
   setTheme(prefersDark);
   darkSwitch.onclick = e => setTheme(!document.body.classList.contains('dark'));
 
-  // Watchlist logic
   function formatRuntime(runtime) {
-  if (!runtime || isNaN(runtime)) return "";
-  const hours = Math.floor(runtime / 60);
-  const mins = runtime % 60;
-  return `${runtime} min${hours || mins ? ` (${hours}h${mins ? ` ${mins}m` : ""})` : ""}`;
-}
-
-let globalImdbIds = [];
-
-function tryRandomPoster(attempts = 10) {
-  document.getElementById('movieCard').style.display = "none";
-  const resultDiv = document.getElementById("result");
-  if (!globalImdbIds.length) {
-    resultDiv.innerText = 'No movies found in CSV.';
-    document.getElementById('tryAnother').style.display = 'none';
-    return;
+    if (!runtime || isNaN(runtime)) return "";
+    const hours = Math.floor(runtime / 60);
+    const mins = runtime % 60;
+    return `${runtime} min${hours || mins ? ` (${hours}h${mins ? ` ${mins}m` : ""})` : ""}`;
   }
-  const tried = new Set();
-  function pickAndTry(nth) {
-    if (tried.size >= Math.min(attempts, globalImdbIds.length)) {
-      resultDiv.innerText = 'No posters found for any titles in your list.';
-      document.getElementById('tryAnother').style.display = 'block';
+  let globalImdbIds = [];
+
+  function tryRandomPoster(attempts = 10) {
+    document.getElementById('movieCard').style.display = "none";
+    const resultDiv = document.getElementById("result");
+    if (!globalImdbIds.length) {
+      resultDiv.innerText = 'No movies found in CSV.';
+      document.getElementById('tryAnother').style.display = 'none';
       return;
     }
-    let idx;
-    do {
-      idx = Math.floor(Math.random() * globalImdbIds.length);
-    } while (tried.has(idx) && tried.size < globalImdbIds.length);
-    tried.add(idx);
-
-    const imdbId = globalImdbIds[idx];
-    resultDiv.innerText = `...`;
-
-    // Fetch TMDB info
-    const tmdbKey = "72357177e7cf80085610bb1f10cae476";
-    const omdbKey = "b0a91702";
-    fetch(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${tmdbKey}&language=en-US&external_source=imdb_id`)
-    .then(resp => resp.json())
-    .then(data => {
-      let tmdbId=null, posterPath='', title='', year='', overview='', mediaType=null;
-      if (data.movie_results && data.movie_results.length) {
-        const m = data.movie_results[0];
-        tmdbId = m.id;
-        posterPath = m.poster_path;
-        title = m.title || m.original_title;
-        year = m.release_date?.slice(0,4);
-        overview = m.overview;
-        mediaType = "movie";
-      } else if (data.tv_results && data.tv_results.length) {
-        const t = data.tv_results[0];
-        tmdbId = t.id;
-        posterPath = t.poster_path;
-        title = t.name || t.original_name;
-        year = t.first_air_date?.slice(0,4);
-        overview = t.overview;
-        mediaType = "tv";
+    const tried = new Set();
+    function pickAndTry(nth) {
+      if (tried.size >= Math.min(attempts, globalImdbIds.length)) {
+        resultDiv.innerText = 'No posters found for any titles in your list.';
+        document.getElementById('tryAnother').style.display = 'block';
+        return;
       }
-      if (!tmdbId || !posterPath) return pickAndTry(nth+1);
+      let idx;
+      do {
+        idx = Math.floor(Math.random() * globalImdbIds.length);
+      } while (tried.has(idx) && tried.size < globalImdbIds.length);
+      tried.add(idx);
 
-      // Details
-      let detailsUrl = `https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=${tmdbKey}&language=en-US`;
-      fetch(detailsUrl)
-        .then(resp2 => resp2.json())
-        .then(details => {
-          const genres = (details.genres||[]).map(g=>g.name).join(', ');
-          const runtimeStr = details.runtime ? formatRuntime(details.runtime) : "";
-          // Credits for director & cast + their profile images
-          fetch(`https://api.themoviedb.org/3/${mediaType}/${tmdbId}/credits?api_key=${tmdbKey}`)
-            .then(r => r.json())
-            .then(credits => {
-              // Director
-              let director = credits.crew ? credits.crew.find(c=>c.job==="Director") : null;
-              let dirName = director ? director.name : "—";
-              let dirImg = (director && director.profile_path) ? `https://image.tmdb.org/t/p/w185${director.profile_path}` : "";
-              // Cast
-              let topCast = credits.cast ? credits.cast.slice(0,5) : [];
-              // OMDb for ratings only
-              fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${omdbKey}`)
-                .then(omdbResp => omdbResp.json())
-                .then(omdb => {
-                  const imdbScore = omdb.imdbRating && omdb.imdbRating != "N/A" ? omdb.imdbRating : "—";
-                  const imdbVotes = omdb.imdbVotes && omdb.imdbVotes != "N/A" ? `(${omdb.imdbVotes} votes)` : "";
-                  let rtScore="", mcScore="";
-                  if (omdb.Ratings) {
-                    omdb.Ratings.forEach(r => {
-                      if(r.Source==="Rotten Tomatoes") rtScore=r.Value;
-                      if(r.Source==="Metacritic") mcScore=r.Value;
-                    });
-                  }
-                  const rating = details.vote_average !== undefined ? (details.vote_average.toFixed(1) + ' / 10') : 'N/A';
-                  const votes = details.vote_count ? ` (${details.vote_count.toLocaleString()} votes)` : '';
-                  const imdbUrl = `https://www.imdb.com/title/${imdbId}/`;
-                  const tmdbUrl = mediaType === "movie"
-                    ? `https://www.themoviedb.org/movie/${tmdbId}`
-                    : `https://www.themoviedb.org/tv/${tmdbId}`;
-                  const letterboxdUrl = `https://letterboxd.com/imdb/${imdbId}/`;
-                  const rtUrl = `https://www.rottentomatoes.com/search?search=${encodeURIComponent(title)}`;
-                  const mcUrl = `https://www.metacritic.com/search/${encodeURIComponent(title)}`;
-                  // Trailer
-                  const videoApiUrl = `https://api.themoviedb.org/3/${mediaType}/${tmdbId}/videos?api_key=${tmdbKey}`;
-                  fetch(videoApiUrl)
-                    .then(resp3 => resp3.json())
-                    .then(videoData => {
-                      const trailer = (videoData.results || []).find(
-                        v => v.site === "YouTube" && v.type === "Trailer"
-                      );
-                      let trailerEmbed = "";
-                      if (trailer) {
-                        trailerEmbed = `
-                          <div class="trailer" style="margin-top:2em">
-                            <iframe src="https://www.youtube.com/embed/${trailer.key}"
-                              frameborder="0" allow="autoplay; encrypted-media"
-                              allowfullscreen title="Trailer" style="width: 320px; height: 180px; border-radius:8px"></iframe>
+      const imdbId = globalImdbIds[idx];
+      resultDiv.innerText = `...`;
+
+      // Fetch TMDB info
+      const tmdbKey = "72357177e7cf80085610bb1f10cae476";
+      const omdbKey = "b0a91702";
+      fetch(`https://api.themoviedb.org/3/find/${imdbId}?api_key=${tmdbKey}&language=en-US&external_source=imdb_id`)
+      .then(resp => resp.json())
+      .then(data => {
+        let tmdbId=null, posterPath='', title='', year='', overview='', mediaType=null;
+        if (data.movie_results && data.movie_results.length) {
+          const m = data.movie_results[0];
+          tmdbId = m.id;
+          posterPath = m.poster_path;
+          title = m.title || m.original_title;
+          year = m.release_date?.slice(0,4);
+          overview = m.overview;
+          mediaType = "movie";
+        } else if (data.tv_results && data.tv_results.length) {
+          const t = data.tv_results[0];
+          tmdbId = t.id;
+          posterPath = t.poster_path;
+          title = t.name || t.original_name;
+          year = t.first_air_date?.slice(0,4);
+          overview = t.overview;
+          mediaType = "tv";
+        }
+        if (!tmdbId || !posterPath) return pickAndTry(nth+1);
+
+        let detailsUrl = `https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=${tmdbKey}&language=en-US`;
+        fetch(detailsUrl)
+          .then(resp2 => resp2.json())
+          .then(details => {
+            const genresList = (details.genres||[]).map(g=>g.name);
+            const genres = genresList.join(', ');
+            const runtimeStr = details.runtime ? formatRuntime(details.runtime) : "";
+            let typeLabel = (mediaType === "tv") ? "TV Series" : "Movie";
+            fetch(`https://api.themoviedb.org/3/${mediaType}/${tmdbId}/credits?api_key=${tmdbKey}`)
+              .then(r => r.json())
+              .then(credits => {
+                // Director (find first, show name and photo)
+                let director = credits.crew ? credits.crew.find(c=>c.job==="Director") : null;
+                let dirName = director ? director.name : "—";
+                let dirImg = (director && director.profile_path) ? `https://image.tmdb.org/t/p/w185${director.profile_path}` : "";
+                // Cast
+                let topCast = credits.cast ? credits.cast.slice(0,5) : [];
+                fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${omdbKey}`)
+                  .then(omdbResp => omdbResp.json())
+                  .then(omdb => {
+                    const imdbScore = omdb.imdbRating && omdb.imdbRating != "N/A" ? omdb.imdbRating : "—";
+                    const imdbVotes = omdb.imdbVotes && omdb.imdbVotes != "N/A" ? `(${omdb.imdbVotes} votes)` : "";
+                    let rtScore="", mcScore="";
+                    if (omdb.Ratings) {
+                      omdb.Ratings.forEach(r => {
+                        if(r.Source==="Rotten Tomatoes") rtScore=r.Value;
+                        if(r.Source==="Metacritic") mcScore=r.Value;
+                      });
+                    }
+                    const rating = details.vote_average !== undefined ? (details.vote_average.toFixed(1) + ' / 10') : 'N/A';
+                    const votes = details.vote_count ? ` (${details.vote_count.toLocaleString()} votes)` : '';
+                    const imdbUrl = `https://www.imdb.com/title/${imdbId}/`;
+                    const tmdbUrl = mediaType === "movie"
+                      ? `https://www.themoviedb.org/movie/${tmdbId}`
+                      : `https://www.themoviedb.org/tv/${tmdbId}`;
+                    const letterboxdUrl = `https://letterboxd.com/imdb/${imdbId}/`;
+                    const rtUrl = `https://www.rottentomatoes.com/search?search=${encodeURIComponent(title)}`;
+                    const mcUrl = `https://www.metacritic.com/search/${encodeURIComponent(title)}`;
+                    const videoApiUrl = `https://api.themoviedb.org/3/${mediaType}/${tmdbId}/videos?api_key=${tmdbKey}`;
+                    fetch(videoApiUrl)
+                      .then(resp3 => resp3.json())
+                      .then(videoData => {
+                        const trailer = (videoData.results || []).find(
+                          v => v.site === "YouTube" && v.type === "Trailer"
+                        );
+                        let trailerEmbed = "";
+                        if (trailer) {
+                          trailerEmbed = `
+                            <div class="trailer" style="margin-top:2em">
+                              <iframe src="https://www.youtube.com/embed/${trailer.key}"
+                                frameborder="0" allow="autoplay; encrypted-media"
+                                allowfullscreen title="Trailer" style="width: 320px; height: 180px; border-radius:8px"></iframe>
+                            </div>
+                          `;
+                        }
+                        // Chips and meta rows
+                        let genreChips = genresList.length
+                          ? `<div class="genre-badges">${
+                              genresList.map(g=>`<span class="genre-badge">${g.trim()}</span>`).join('')
+                            }</div>` : '';
+                        let ratingsChipRow = `
+                          <div class="ratings-row">
+                            <span class="rating-chip" title="IMDb">⭐ IMDb: ${imdbScore} ${imdbVotes}</span>
+                            ${rtScore ? `<span class="rating-chip" title="Rotten Tomatoes">🍅 RT: ${rtScore}</span>` : ""}
+                            ${mcScore ? `<span class="rating-chip" title="Metacritic">📰 MC: ${mcScore}</span>` : ""}
+                            <span class="rating-chip" title="TMDB">TMDB: ${rating}${votes}</span>
                           </div>
                         `;
-                      }
-                      let ratingsRow = `
-                        <span title="IMDb" style="color:#e3b243;background:#fff9e3;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;white-space:nowrap;">
-                          ⭐ IMDb: ${imdbScore} ${imdbVotes}
-                        </span>`;
-                      if (rtScore)
-                        ratingsRow += `<span title="Rotten Tomatoes" style="color:#df3125;background:#fff3f2;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;white-space:nowrap;">🍅 RT: ${rtScore}</span>`;
-                      if (mcScore)
-                        ratingsRow += `<span title="Metacritic" style="color:#3182c8;background:#edf6ff;border-radius:4px;padding:.1em .55em .09em 0.53em;margin:0 7px 0 0;font-weight:600;white-space:nowrap;">📰 MC: ${mcScore}</span>`;
-                      ratingsRow += `<span title="TMDB Community" style="color:#6666dd;background:#f0f1fc;border-radius:4px;padding:.1em .55em .09em 0.53em;font-weight:500;white-space:nowrap;">TMDB: ${rating}${votes}</span>`;
 
-                      // Director (photo + name)
-                      let directorHtml = director ? `
-                        <div style="display:flex;align-items:center;gap:10px;justify-content:center;">
-                          ${dirImg ? `<img src="${dirImg}" alt="${dirName}" title="${dirName}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid #eee;background:#eaeefa;">` : ""}
-                          <span><strong>Director:</strong> ${dirName}</span>
-                        </div>
-                      ` : '';
+                        // Director block
+                        let directorHtml = director ? `
+                          <div class="director-block">
+                            ${dirImg ? `<img src="${dirImg}" alt="${dirName}" title="${dirName}">` : ""}
+                            <span><strong>Director:</strong> ${dirName}</span>
+                          </div>
+                        ` : '';
 
-                      // Cast (photos + names)
-                      let castHtml = "";
-                      if (topCast.length) {
-                        castHtml = `<div style="margin:0.55em 0;">
-                          <div style="display:flex;gap:13px;justify-content:center;align-items:flex-end;flex-wrap:wrap;">${
+                        // Cast gallery
+                        let castHtml = "";
+                        if (topCast.length) {
+                          castHtml = `<div class="cast-gallery">${
                             topCast.map(actor => `
-                              <div style="display:flex;flex-direction:column;align-items:center;max-width:70px">
-                                ${actor.profile_path ? `<img src="https://image.tmdb.org/t/p/w185${actor.profile_path}" alt="${actor.name}" title="${actor.name}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:1px solid #eaeefa;background:#fafbfc;">` : `<div style="width:48px;height:48px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:1.0em;">?</div>`}
-                                <div style="font-size:0.88em;margin-top:0.18em;text-align:center;">${actor.name}</div>
+                              <div class="cast-gallery-member">
+                                ${
+                                  actor.profile_path
+                                    ? `<img src="https://image.tmdb.org/t/p/w185${actor.profile_path}" alt="${actor.name}" title="${actor.name}">`
+                                    : `<div class="empty-cast-img">?</div>`
+                                }
+                                <div class="cast-name">${actor.name}</div>
                               </div>
                             `).join('')
-                          }
+                          }</div>`;
+                        }
+
+                        // Add Stremio deep link!
+                        let stremioLink = mediaType === "tv"
+                          ? `stremio:///detail/series/${imdbId}`
+                          : `stremio:///detail/movie/${imdbId}`;
+
+                        document.getElementById('movieCard').innerHTML = `
+                          <img class="movie-poster" src="https://image.tmdb.org/t/p/w500${posterPath}" onerror="this.style.display='none'" alt="${title} poster"/>
+                          <div>
+                            <div class="movie-title-row">
+                              <span class="movie-title">${title}</span>
+                              <span class="type-badge">${typeLabel}</span>
+                            </div>
+                            <div class="movie-year">${year || ''}</div>
+                            ${genreChips}
+                            ${ratingsChipRow}
+                            <div class="movie-meta">
+                              ${runtimeStr ? `<strong>Runtime:</strong> ${runtimeStr}` : ""}
+                            </div>
+                            ${directorHtml}
+                            ${castHtml}
+                            <div class="movie-desc">${overview || ''}</div>
+                            <div class="platform-links">
+                              <a href="${imdbUrl}" target="_blank" rel="noopener">IMDb</a>
+                              <a href="${tmdbUrl}" target="_blank" rel="noopener">TMDB</a>
+                              <a href="${letterboxdUrl}" target="_blank" rel="noopener">Letterboxd</a>
+                              <a href="${rtUrl}" target="_blank" rel="noopener">RT</a>
+                              <a href="${mcUrl}" target="_blank" rel="noopener">Metacritic</a>
+                            </div>
+                            ${trailerEmbed}
                           </div>
-                        </div>`;
-                      }
-                      // Add Stremio deep link!
-                      let stremioLink = mediaType === "tv"
-                        ? `stremio:///detail/series/${imdbId}`
-                        : `stremio:///detail/movie/${imdbId}`;
+                          <button id="stremioButton" class="stremio-btn">
+                            <img src="https://www.stremio.com/website/stremio-logo-small.png" alt="Stremio">Open in Stremio
+                          </button>
+                        `;
+                        document.getElementById('movieCard').style.display = "flex";
+                        resultDiv.innerText = "";
+                        document.getElementById('tryAnother').style.display = 'block';
 
-                      document.getElementById('movieCard').innerHTML = `
-                        <img class="movie-poster" src="https://image.tmdb.org/t/p/w500${posterPath}" onerror="this.style.display='none'" alt="${title} poster"/>
-                        <div>
-                          <div class="movie-title">${title}</div>
-                          <div class="movie-year">${year || ''}</div>
-                          <div class="movie-genre">${genres}</div>
-                          <div class="movie-rating" style="margin:0.6em 0 0.4em 0;font-size:1em;">${ratingsRow}</div>
-                          <div style="margin:0.38em 0 0.35em 0;">${runtimeStr ? `<strong>Runtime:</strong> ${runtimeStr}` : ""}</div>
-                          ${directorHtml}
-                          ${castHtml}
-                          <div class="movie-desc">${overview || ''}</div>
-                          <div class="platform-links">
-                            <a href="${imdbUrl}" target="_blank" rel="noopener">IMDb</a>
-                            <a href="${tmdbUrl}" target="_blank" rel="noopener">TMDB</a>
-                            <a href="${letterboxdUrl}" target="_blank" rel="noopener">Letterboxd</a>
-                            <a href="${rtUrl}" target="_blank" rel="noopener">RT</a>
-                            <a href="${mcUrl}" target="_blank" rel="noopener">Metacritic</a>
-                          </div>
-                          ${trailerEmbed}
-                        </div>
-                        <button id="stremioButton" class="stremio-btn">
-                          <img src="https://www.stremio.com/website/stremio-logo-small.png" alt="Stremio">Open in Stremio
-                        </button>
-                      `;
-                      document.getElementById('movieCard').style.display = "flex";
-                      resultDiv.innerText = "";
-                      document.getElementById('tryAnother').style.display = 'block';
-
-                      // Stremio button deep link handler
-                      const stremioButton = document.getElementById('stremioButton');
-                      if (stremioButton) {
-                        stremioButton.addEventListener('click', function() {
-                          try {
-                            const tempLink = document.createElement('a');
-                            tempLink.href = stremioLink;
-                            tempLink.target = '_self';
-                            tempLink.style.display = 'none';
-                            document.body.appendChild(tempLink);
-                            tempLink.click();
-                            document.body.removeChild(tempLink);
-                          } catch(e) {
-                            alert('Could not open Stremio link.');
-                          }
-                        });
-                      }
-                    }).catch(()=>pickAndTry(nth+1));
-                }).catch(()=>pickAndTry(nth+1));
-            }).catch(()=>pickAndTry(nth+1));
-        }).catch(()=>pickAndTry(nth+1));
-    }).catch(()=>pickAndTry(nth+1));
-  }
-  pickAndTry(0);
-}
-
-document.getElementById('csvUpload').addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: function(results) {
-      globalImdbIds = results.data
-        .map(row => row['Const'] && row['Const'].trim())
-        .filter(id => id && /^tt\d+$/.test(id));
-      document.getElementById('tryAnother').style.display = globalImdbIds.length ? 'block' : 'none';
-      tryRandomPoster();
-      event.target.value = "";
+                        const stremioButton = document.getElementById('stremioButton');
+                        if (stremioButton) {
+                          stremioButton.addEventListener('click', function() {
+                            try {
+                              const tempLink = document.createElement('a');
+                              tempLink.href = stremioLink;
+                              tempLink.target = '_self';
+                              tempLink.style.display = 'none';
+                              document.body.appendChild(tempLink);
+                              tempLink.click();
+                              document.body.removeChild(tempLink);
+                            } catch(e) {
+                              alert('Could not open Stremio link.');
+                            }
+                          });
+                        }
+                      }).catch(()=>pickAndTry(nth+1));
+                  }).catch(()=>pickAndTry(nth+1));
+              }).catch(()=>pickAndTry(nth+1));
+          }).catch(()=>pickAndTry(nth+1));
+      }).catch(()=>pickAndTry(nth+1));
     }
+    pickAndTry(0);
+  }
+
+  document.getElementById('csvUpload').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        globalImdbIds = results.data
+          .map(row => row['Const'] && row['Const'].trim())
+          .filter(id => id && /^tt\d+$/.test(id));
+        document.getElementById('tryAnother').style.display = globalImdbIds.length ? 'block' : 'none';
+        tryRandomPoster();
+        event.target.value = "";
+      }
+    });
   });
-});
-document.getElementById('tryAnother').onclick = () => tryRandomPoster();
-</script>
+  document.getElementById('tryAnother').onclick = () => tryRandomPoster();
+  </script>
 </body>
 </html>
