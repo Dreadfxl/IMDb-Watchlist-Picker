@@ -153,9 +153,8 @@
       color: #5A3EB6;
       padding: 0.18em 0.74em;
       border-radius: 16px;
-      margin-left: 8px;
-      margin-bottom: 2px;
       letter-spacing: 0.02em;
+      margin: 0.27em 0 0.16em 0;
       vertical-align: middle;
     }
     .movie-year {
@@ -537,10 +536,8 @@
                         document.getElementById('movieCard').innerHTML = `
                           <img class="movie-poster" src="https://image.tmdb.org/t/p/w500${posterPath}" onerror="this.style.display='none'" alt="${title} poster"/>
                           <div>
-                            <div class="movie-title-row">
-                              <span class="movie-title">${title}</span>
-                              <span class="type-badge">${typeLabel}</span>
-                            </div>
+                            <div class="movie-title">${title}</div>
+                            <div class="type-badge">${typeLabel}</div>
                             <div class="movie-year">${year || ''}</div>
                             ${genreChips}
                             ${ratingsChipRow}
